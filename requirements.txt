@@ -1,0 +1,9 @@
+# Flask serves the dashboard and JSON API to the local Wi-Fi network.
+Flask>=3.0,<4.0
+# PyYAML reads the project-relative conveyor, model, and network settings.
+PyYAML>=6.0,<7.0
+# Requests reads the existing Pi camera and conveyor HTTP APIs.
+requests>=2.31,<3.0
+# NumPy and headless OpenCV handle the ONNX model, crop, annotations, and photos.
+numpy>=1.26,<3.0
+opencv-python-headless>=4.8,<5.0

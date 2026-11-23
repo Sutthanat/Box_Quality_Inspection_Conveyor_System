@@ -1,0 +1,18 @@
+# Run the Flask sorter as a separate Pi service and stop active motion on shutdown.
+[Unit]
+Description=PAML LAN box-sorting conveyor
+After=network-online.target paml-server.service paml-camera.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cps
+WorkingDirectory=/home/cps/paml_project/Mechatronics_Project
+ExecStart=/usr/bin/python3 -m sorter_app
+Restart=on-failure
+RestartSec=3
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

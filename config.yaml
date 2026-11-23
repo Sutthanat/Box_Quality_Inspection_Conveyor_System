@@ -1,0 +1,43 @@
+# LAN and service settings: the Pi hosts the dashboard; no Windows machine is needed.
+app:
+  host: "0.0.0.0"
+  port: 8101
+
+# These are local services on the Pi and the existing camera/controller owners.
+camera:
+  url: "http://127.0.0.1:9000"
+  timeout_seconds: 8
+  frame_width: 1280
+  frame_height: 720
+
+conveyor:
+  url: "http://127.0.0.1:8000"
+  capture_app_status_url: "http://127.0.0.1:8100/api/state"
+  request_timeout_seconds: 3
+  poll_seconds: 0.05
+  telemetry_stale_seconds: 2
+  motion_timeout_seconds: 120
+  stop_timeout_seconds: 20
+  max_acceleration: 10000
+  min_speed: 500
+  max_speed: 3000
+  default_speed: 1500
+
+# Keep class order in sync with the training dataset and exported ONNX model.
+yolo:
+  model: "best.onnx"
+  input_size: 640
+  confidence_threshold: 0.25
+  iou_threshold: 0.45
+  class_names:
+    - lid_open
+    - tape_defect
+    - sticker_defect
+    - crushed_corner
+    - stain
+
+# All output paths are relative to this project folder.
+sorting:
+  data_directory: "sorting_data"
+  settle_seconds: 0.8
+  jpeg_quality: 94

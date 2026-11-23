@@ -1,0 +1,5 @@
+# Keep runtime output, local model weights, and Python cache out of source control.
+sorting_data/
+best.onnx
+__pycache__/
+.venv/
