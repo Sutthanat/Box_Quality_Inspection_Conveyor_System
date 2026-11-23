@@ -1,6 +1,8 @@
 # Box Quality Inspection Conveyor System
 
-Report --> Report.pdf
+
+*** Report --> Report.pdf ***
+
 
 A Raspberry-Pi-hosted box-sorting dashboard. It runs the ONNX model on the Pi,
 uses the existing Pi camera and conveyor API, and serves the interface to other
