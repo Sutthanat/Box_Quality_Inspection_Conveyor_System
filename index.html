@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mechatronics Box Sorter</title>
+  <style>
+    /* Keep the dashboard readable on both a phone beside the belt and a PC. */
+    :root {
+      color-scheme: dark;
+      font: 15px/1.45 "Segoe UI", sans-serif;
+      background: #10151b;
+      color: #e7edf4;
+      --panel: #19212a;
+      --border: #2c3947;
+      --muted: #9aa8b7;
+      --green: #4ed28c;
+      --red: #f06c6c;
+      --blue: #6faef8;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1440px; margin: 0 auto; padding: 22px; }
+    header { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: 1.7rem; }
+    h2 { margin: 0 0 14px; font-size: 1.05rem; }
+    .muted, .subtitle { color: var(--muted); }
+    .subtitle { margin-top: 3px; }
+    .connection { display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #788493; }
+    .dot.live { background: var(--green); box-shadow: 0 0 12px #4ed28c88; }
+    .dot.error { background: var(--red); }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, .9fr); gap: 16px; }
+    .panel { min-width: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .camera { width: 100%; aspect-ratio: 16 / 9; background: #080b0f; border-radius: 8px; object-fit: contain; }
+    .camera-help { margin: 8px 0 0; color: var(--muted); font-size: .85rem; }
+    .state-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .state-pill { border-radius: 99px; padding: 4px 10px; background: #263545; color: #c9dafa; font-weight: 650; }
+    .state-pill.running { color: #a7f0c6; background: #183c2b; }
+    .state-pill.error { color: #ffb0b0; background: #492426; }
+    .message { min-height: 44px; margin-bottom: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    button, .download { min-height: 40px; border: 0; border-radius: 7px; padding: 8px 13px; font: inherit; font-weight: 650; cursor: pointer; text-decoration: none; }
+    button:disabled, .download.disabled { opacity: .45; cursor: not-allowed; }
+    .start { color: #07180e; background: var(--green); }
+    .stop { color: #fff; background: #546272; }
+    .estop { color: #fff; background: #b93535; }
+    .download { display: inline-flex; align-items: center; color: #d8e8ff; background: #243f5c; }
+    .safety { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; color: #ffd89a; font-size: .9rem; }
+    .safety input { margin-top: 4px; }
+    .speed { margin: 16px 0; }
+    .speed-title { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 5px; }
+    input[type=range] { width: 100%; accent-color: var(--blue); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 14px 0; }
+    .metric { background: #131a22; border-radius: 8px; padding: 11px; }
+    .metric-label { display: block; color: var(--muted); font-size: .8rem; }
+    .metric-value { font-size: 1.28rem; font-weight: 700; }
+    .defect-counts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 12px; margin-bottom: 14px; }
+    .defect-count { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 5px 0; }
+    .last-box { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(120px, 1.3fr); gap: 12px; align-items: start; border-top: 1px solid var(--border); padding-top: 12px; }
+    .last-box img { width: 100%; border-radius: 7px; background: #080b0f; }
+    .details { overflow-wrap: anywhere; }
+    .table-wrap { margin-top: 16px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 9px; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: .82rem; }
+    td img { width: 110px; height: 72px; border-radius: 5px; object-fit: contain; background: #080b0f; }
+    .good { color: #8ee6b2; }
+    .defective { color: #ffae83; }
+    .notice { margin-top: 10px; min-height: 22px; color: var(--muted); }
+    .danger-note { color: #ffb0b0; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) {
+      main { padding: 13px; }
+      header { align-items: flex-start; flex-direction: column; }
+      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .metric { padding: 8px; }
+      .metric-value { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Mechatronics Box Sorter</h1>
+        <div class="subtitle">Pi camera · YOLO box inspection · session tracking</div>
+      </div>
+      <div class="connection"><span id="health-dot" class="dot"></span><span id="health">Connecting…</span></div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Live camera</h2>
+        <!-- The existing Pi camera service owns the USB camera and shares its stream. -->
+        <img id="camera" class="camera" alt="Live camera feed">
+        <p class="camera-help">Camera stream is live; saved box photos are cropped and annotated during YOLO inspection.</p>
+        <div id="telemetry" class="notice"></div>
+      </section>
+
+      <section class="panel">
+        <div class="state-row">
+          <h2>Conveyor control</h2>
+          <span id="state" class="state-pill">STOPPED</span>
+        </div>
+        <div id="message" class="message">Loading sorter status…</div>
+        <label class="safety">
+          <input id="clear-confirm" type="checkbox">
+          <span>I confirm the belt path is clear, the physical emergency stop is accessible, and other conveyor-control apps are not running.</span>
+        </label>
+        <div class="actions">
+          <button id="start" class="start">Start new session</button>
+          <button id="stop" class="stop">Stop conveyor</button>
+          <button id="emergency-stop" class="estop">Emergency stop</button>
+        </div>
+        <div class="speed">
+          <div class="speed-title">
+            <label for="speed">Conveyor speed</label>
+            <span id="speed-value"></span>
+          </div>
+          <input id="speed" type="range" min="{{ speed_min }}" max="{{ speed_max }}" step="100" value="{{ default_speed }}">
+          <div class="muted">Counts/s · a new setting applies at the next motion phase.</div>
+          <div id="control-notice" class="notice"></div>
+        </div>
+        <div class="actions">
+          <a id="csv-export" class="download disabled" aria-disabled="true">Export log + performance CSV</a>
+          <a id="zip-export" class="download disabled" aria-disabled="true">Export photos ZIP</a>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span class="metric-label">Inspected</span><span id="total" class="metric-value">0</span></div>
+          <div class="metric"><span class="metric-label">Good</span><span id="good" class="metric-value">0</span></div>
+          <div class="metric"><span class="metric-label">Defective</span><span id="defective" class="metric-value">0</span></div>
+        </div>
+        <h2>Defect types (boxes)</h2>
+        <div id="defect-counts" class="defect-counts"></div>
+        <div id="last-box" class="last-box muted">No box inspected this session.</div>
+        <div id="notice" class="notice danger-note" role="status"></div>
+      </section>
+    </div>
+
+    <section class="panel table-wrap">
+      <h2>Current session log</h2>
+      <div class="muted">A new Start creates a new session and resets its box count and performance totals.</div>
+      <table>
+        <thead><tr><th>Box</th><th>Status</th><th>Defect types</th><th>Sticker</th><th>Photo</th></tr></thead>
+        <tbody id="records"><tr><td colspan="5" class="muted">No boxes recorded yet.</td></tr></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    // Keep UI values text-only when showing data from the LAN sorter API.
+    const byId = id => document.getElementById(id);
+    const escapeText = value => String(value).replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[ch]);
+    let activeSession = null;
+    let pendingSpeed = false;
+
+    // Use the Pi's shared MJPEG endpoint so inference and preview do not open the sensor twice.
+    byId('camera').src = `http://${window.location.hostname}:9000/stream.mjpg`;
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        cache: 'no-store',
+        ...options,
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || body.description || `Request failed (${response.status})`);
+      return body;
+    }
+
+    function setExportLinks(sessionId) {
+      for (const [id, href] of [
+        ['csv-export', '/api/export.csv'],
+        ['zip-export', '/api/export/images.zip']
+      ]) {
+        const link = byId(id);
+        if (sessionId) {
+          link.href = href;
+          link.classList.remove('disabled');
+          link.removeAttribute('aria-disabled');
+        } else {
+          link.removeAttribute('href');
+          link.classList.add('disabled');
+          link.setAttribute('aria-disabled', 'true');
+        }
+      }
+    }
+
+    function drawState(data) {
+      activeSession = data.session_id;
+      byId('health-dot').className = `dot ${data.telemetry?._fresh ? 'live' : 'error'}`;
+      byId('health').textContent = data.telemetry?._fresh
+        ? 'Controller telemetry live' : 'Controller telemetry stale or waiting';
+      byId('state').textContent = data.state.replaceAll('_', ' ').toUpperCase();
+      byId('state').className = `state-pill ${data.running ? 'running' : data.error ? 'error' : ''}`;
+      byId('message').textContent = data.message;
+      byId('total').textContent = data.box_count;
+      byId('good').textContent = data.good_count;
+      byId('defective').textContent = data.defective_count;
+      byId('speed').value = data.speed;
+      byId('speed-value').textContent = `${data.speed} counts/s`;
+      byId('start').disabled = data.running || pendingSpeed;
+      byId('stop').disabled = !data.running;
+      byId('telemetry').textContent = data.telemetry
+        ? `Position ${data.telemetry.pos} · velocity ${data.telemetry.vel} · sensor 1 ${data.telemetry.s1} · sensor 2 ${data.telemetry.s2} · telemetry ${data.telemetry._fresh ? 'live' : 'stale'}`
+        : 'No controller telemetry is available.';
+      byId('notice').textContent = data.error || data.controller_error || '';
+      setExportLinks(data.session_id);
+
+      byId('defect-counts').innerHTML = Object.entries(data.defect_counts)
+        .map(([name, count]) => `<div class="defect-count"><span>${escapeText(name)}</span><strong>${count}</strong></div>`)
+        .join('');
+      byId('last-box').innerHTML = data.last_box
+        ? `<img src="/sessions/${encodeURIComponent(data.session_id)}/${encodeURIComponent(data.last_box.image_file)}?v=${encodeURIComponent(data.last_box.box_number)}" alt="Latest annotated box"><div class="details"><strong>Box ${data.last_box.box_number}</strong><br>${escapeText(data.last_box.status)}<br>Sticker: ${escapeText(data.last_box.sticker_color)}<br>${escapeText(data.last_box.defect_types.join(', ') || 'No defects')}<br>${data.last_box.inference_ms} ms</div>`
+        : 'No box inspected this session.';
+      byId('records').innerHTML = data.records.length
+        ? data.records.map(record => {
+          const defects = record.defect_types.length ? record.defect_types.join(', ') : '—';
+          const imageUrl = `/sessions/${encodeURIComponent(data.session_id)}/${encodeURIComponent(record.image_file)}`;
+          return `<tr><td>${record.box_number}</td><td class="${record.status === 'Good' ? 'good' : 'defective'}">${escapeText(record.status)}</td><td>${escapeText(defects)}</td><td>${escapeText(record.sticker_color)}</td><td><a href="${imageUrl}" target="_blank" rel="noopener"><img src="${imageUrl}" alt="Box ${record.box_number}"></a></td></tr>`;
+        }).join('')
+        : '<tr><td colspan="5" class="muted">No boxes recorded yet.</td></tr>';
+    }
+
+    async function refresh() {
+      try {
+        drawState(await api('/api/state'));
+      } catch (error) {
+        byId('health-dot').className = 'dot error';
+        byId('health').textContent = 'Sorter unavailable';
+        byId('notice').textContent = error.message;
+      }
+    }
+
+    byId('start').addEventListener('click', async () => {
+      if (!byId('clear-confirm').checked) {
+        byId('notice').textContent = 'Confirm the conveyor safety checklist before starting.';
+        return;
+      }
+      byId('start').disabled = true;
+      try {
+        await api('/api/start', {
+          method: 'POST',
+          body: JSON.stringify({ confirmed_clear: true })
+        });
+        byId('clear-confirm').checked = false;
+        byId('notice').textContent = 'New sorting session started.';
+      } catch (error) {
+        byId('notice').textContent = error.message;
+      } finally {
+        await refresh();
+      }
+    });
+
+    byId('stop').addEventListener('click', async () => {
+      if (!window.confirm('Stop the conveyor and end this sorting session?')) return;
+      try {
+        await api('/api/stop', { method: 'POST' });
+        byId('notice').textContent = 'Controlled stop complete.';
+      } catch (error) {
+        byId('notice').textContent = error.message;
+      } finally {
+        await refresh();
+      }
+    });
+
+    byId('emergency-stop').addEventListener('click', async () => {
+      if (!window.confirm('Send the controller emergency-stop command now?')) return;
+      try {
+        await api('/api/emergency-stop', { method: 'POST' });
+        byId('notice').textContent = 'Emergency-stop command sent. Verify the belt is physically stopped.';
+      } catch (error) {
+        byId('notice').textContent = error.message;
+      } finally {
+        await refresh();
+      }
+    });
+
+    byId('speed').addEventListener('change', async event => {
+      pendingSpeed = true;
+      byId('control-notice').textContent = 'Saving speed for the next motion phase…';
+      try {
+        const data = await api('/api/speed', {
+          method: 'POST',
+          body: JSON.stringify({ speed: Number(event.target.value) })
+        });
+        byId('control-notice').textContent = `Speed set to ${data.speed} counts/s.`;
+      } catch (error) {
+        byId('control-notice').textContent = error.message;
+        await refresh();
+      } finally {
+        pendingSpeed = false;
+        await refresh();
+      }
+    });
+
+    // Polling keeps all browser clients on a session in sync without a Socket.IO dependency.
+    refresh();
+    window.setInterval(refresh, 750);
+  </script>
+</body>
+</html>
