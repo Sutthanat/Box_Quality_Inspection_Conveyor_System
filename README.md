@@ -42,6 +42,11 @@ This project implements an accessible, embedded mechatronics inspection loop com
 
 The physical plant consists of a top-mounted industrial vision camera, a Raspberry Pi 4 B, a Cytron MOTION 2350 Pro microcontroller, a 12 V DC gear motor with quadrature encoder driving the conveyor belt, and two optical sensors.
 
+**Overall System**
+<img width="3086" height="2182" alt="Hardware_Setup" src="https://github.com/user-attachments/assets/e46f4098-7496-4391-9140-41fd94972209" />
+
+**Wiring Diagram**
+<img width="3086" height="2182" alt="Wiring_Diagram" src="https://github.com/user-attachments/assets/91219b72-3dd1-4ba0-8906-c705424cc272" />
 
 ```markdown
 ![Overall System](media/Hardware_Setup.jpg)
