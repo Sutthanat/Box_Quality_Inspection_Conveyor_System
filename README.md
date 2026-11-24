@@ -13,8 +13,8 @@ Sutthanat Sinthupinyo 6630318321
 
 - [Project Rationale & Scope](#project-rationale--scope)
 - [Hardware & Wiring Diagram](#hardware--wiring-diagram)
-- [Defect classes](#defect-classes)
 - [What It Does](#what-it-does)
+- [Defect Classes & Detection Results](#defect-classes--detection-results)
 - [Part List](#part-list)
 - [Software Stack](#software-stack)
 - [Physical Operation & Safety](#physical-operation--safety)
@@ -54,7 +54,6 @@ The physical plant consists of a top-mounted industrial vision camera, a Raspber
 **Wiring Diagram**
 ![Wiring Diagram](media/Wiring_Diagram.jpg)
 
-## Defect classes
 
 ## What it does
 
@@ -77,6 +76,8 @@ The physical plant consists of a top-mounted industrial vision camera, a Raspber
 - **Live Monitoring:** Streams a live camera view from the existing Pi camera service (avoiding V4L2 device conflicts) to any browser on the local Wi-Fi network.
 
 ---
+
+## Defect Classes & Detection Results
 
 ## Part List
 
