@@ -14,7 +14,7 @@ Sutthanat Sinthupinyo 6630318321
 
 - [Project Rationale & Scope](#project-rationale--scope)
 - [What It Does](#what-it-does)
-- [System Architecture & Hardware](#system-architecture--hardware)
+- [Hardware & Wiring Diagram](#hardware--Wiring-Diagram)
 - [Physical Operation & Safety](#physical-operation--safety)
 - [Installation on the Raspberry Pi](#installation-on-the-raspberry-pi)
 - [Configuration & Data Export](#configuration--data-export)
@@ -38,33 +38,28 @@ This project implements an accessible, embedded mechatronics inspection loop com
 
 ---
 
-## What it does
+## Hardware & Wiring Diagram
 
-- Starts each session at box 1 and resets that session's dashboard totals.
-- Runs the belt forward while waiting for sensor 1. Sensor 1 does not stop the
-  belt; sensor 2 is armed in the controller firmware and performs its existing
-  controlled sensor-land at the box's leading edge.
-- Measures sensor 1 to sensor 2 using live controller telemetry, reverses for
-  half the measured time, then waits for the conveyor to settle.
-- Uses the exact `crop_fixed` function from `crop.py` for YOLO and sticker
-  color analysis. The crop is saved with each YOLO box annotated.
-- Classifies a box as defective if one or more classes exceed the configured
-  confidence threshold. Repeated predictions of one defect type are counted
-  once per box.
-- Sends good boxes forward through sensor 2 without stopping. It then re-arms
-  sensor 2 for the next box.
-- Stops a defective box at sensor 2 and waits for the operator to remove it
-  before resuming forward motion.
-- Logs the box number, unique defect types, sticker color, confidence,
-  timestamp, image filename, and detection boxes. CSV exports include session
-  performance totals and per-type defective-box counts. ZIP exports include
-  both CSVs and annotated photos.
-- Provides a live camera view from the existing Pi camera service, avoiding a
-  second V4L2 camera owner.
-
-## Hardware
+The physical plant consists of a top-mounted industrial vision camera, a Raspberry Pi 4 B, a Cytron MOTION 2350 Pro microcontroller, a 12 V DC gear motor with quadrature encoder driving the conveyor belt, and two optical sensors.
 
 ## Defect classes
+
+## What it does
+
+- **Session Management:** Starts each session at Box No.1 and resets that session's dashboard totals while keeping previous session folders intact.
+- **Dual-Sensor Positioning:** Runs the belt forward while waiting for Sensor 1. Sensor 1 does not stop the belt; Sensor 2 is armed in the controller firmware and performs a controlled sensor-land at the box's leading edge.
+- **Centering Under Camera:** Measures the travel time from Sensor 1 to Sensor 2 using live controller telemetry, reverses for half the measured time to center the box under the lens, and waits for the conveyor to settle.
+- **Vision Pipeline:** Uses the exact `crop_fixed` function from `crop.py` for YOLO ONNX inference and sticker color analysis (`postit_color.py`). The cropped image is saved with each detected defect box annotated.
+- **Defect Decision Logic:** Classifies a box as defective if one or more classes exceed the configured confidence threshold. Repeated predictions of the same defect type are counted once per box.
+- **Sorting Action:**
+  - **Good boxes** are sent forward through Sensor 2 without stopping, then Sensor 2 is re-armed for the next box.
+  - **Defective boxes** stop at Sensor 2 and wait for the operator to remove them before resuming forward motion.
+- **Logging & Exports:** Logs box number, unique defect types, sticker color, confidence, timestamp, image filename, and detection boxes. CSV exports include session performance totals and per-type defective-box counts; ZIP exports include both CSVs and annotated photos.
+- **Live Monitoring:** Streams a live camera view from the existing Pi camera service (avoiding V4L2 device conflicts) to any browser on the local Wi-Fi network.
+
+---
+
+
 
 ## Physical operation and safety
 
