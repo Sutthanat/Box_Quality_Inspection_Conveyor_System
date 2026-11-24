@@ -1,13 +1,42 @@
 # Box Quality Inspection Conveyor System
 
 
-*** Report --> Report.pdf ***
+*** Report --> docs/Report.pdf ***
 
+Sutthanat Sinthupinyo 6630318321
 
-A Raspberry-Pi-hosted box-sorting dashboard. It runs the ONNX model on the Pi,
-uses the existing Pi camera and conveyor API, and serves the interface to other
-devices on the same Wi-Fi network. No Windows PC, C-drive path, password, or
-external inference service is required at runtime.
+## Brief overview of the project
+  This project is a **machine vision quality inspection system** for boxes on a conveyor, developed with a **Raspberry Pi 4 B** and a **Cytron Motion 2350 Pro** microcontroller using a customized **YOLO** model (ONNX) to detect 5 types of defect on boxes, and uses **OpenCV** to recognize sticker colours on the boxes. The conveyor will stop if the box is defective. There's also a **Flask** web interface dashboard to monitor and log detection results, together with controlling and monitoring the conveyor’s status on the same local Wi-Fi network. No Windows PC, C-drive path, password, or external inference service is required at runtime.
+
+---
+
+## Table of Contents
+
+- [Project Rationale & Scope](#project-rationale--scope)
+- [What It Does](#what-it-does)
+- [System Architecture & Hardware](#system-architecture--hardware)
+- [Physical Operation & Safety](#physical-operation--safety)
+- [Installation on the Raspberry Pi](#installation-on-the-raspberry-pi)
+- [Configuration & Data Export](#configuration--data-export)
+- [Developer Checks](#developer-checks)
+- [Future Work](#future-work)
+- [Background & References](#background--references)
+
+---
+
+## Project Rationale & Scope
+
+Visual quality inspection is a routine step in packaging lines. In many small and medium factories, inspection is still performed manually, which is slow, fatiguing, inconsistent, and rarely logged for quality analysis. Commercial automated optical inspection (AOI) systems are often expensive and closed, while rule-based computer vision alone struggles to generalize across diverse defect types (structural damage, missing seals, and surface stains).
+
+This project implements an accessible, embedded mechatronics inspection loop combining deep learning and classical computer vision:
+- **Multi-defect detection:** Detects 5 defect classes simultaneously on a single box—**open lid**, **tape defect**, **sticker defect**, **crushed corner**, and **stain**—using a custom YOLO11n model exported to ONNX.
+- **Classical CV where rules suffice:** Uses OpenCV for fixed-region cropping (`crop.py`), drawing annotated bounding boxes, and recognizing post-it/sticker colors (`postit_color.py`).
+- **Complete mechatronics loop:** Sensing $\rightarrow$ Inspection $\rightarrow$ Decision $\rightarrow$ Sorting/Stopping $\rightarrow$ Logging.
+- **Why Raspberry Pi 4 B?** Unlike microcontrollers (e.g., Arduino), the Raspberry Pi provides native USB camera support, sufficient CPU performance for live video and lightweight ONNX inference, strong Python/OpenCV ecosystem support, built upon a strong Raspberry Pi community and compact form factor compared to a mini PC or higher-cost Jetson boards.
+
+**Scope & Limitations:** The system uses a single top-down camera, so side-wall damage is not inspected. Boxes need to be presented in a fixed orientation, and the model was trained on a dataset of 20 boxes of one design under controlled lab lighting.
+
+---
 
 ## What it does
 
@@ -32,6 +61,10 @@ external inference service is required at runtime.
   both CSVs and annotated photos.
 - Provides a live camera view from the existing Pi camera service, avoiding a
   second V4L2 camera owner.
+
+## Hardware
+
+## Defect classes
 
 ## Physical operation and safety
 
