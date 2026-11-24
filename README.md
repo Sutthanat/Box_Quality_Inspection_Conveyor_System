@@ -58,15 +58,15 @@ The physical plant consists of a top-mounted industrial vision camera, a Raspber
 
 ## What it does
 
-- **Session Management:** Starts each session at Box No.1 and resets that session's dashboard totals while keeping previous session folders intact.
+- **Session Management:** Each new session starts with box No.1, and resets the previous session's dashboard totals while keeping previous session folders intact.
 
-- **Dual-Sensor Positioning:** Runs the belt forward while waiting for Sensor 1. Sensor 1 does not stop the belt; Sensor 2 is armed in the controller firmware and performs a controlled sensor-land at the box's leading edge.
+- **Positioning:** Runs the belt forward while waiting for a box to pass Sensor 1. When Sensor 1 detects a box, it does not stop the belt; Sensor 2 is armed in the controller firmware and performs a controlled sensor-land at the box's leading edge, stopping the conveyor when Sensor 2 detects a box.
 
 - **Centering Under Camera:** Measures the travel time from Sensor 1 to Sensor 2 using live controller telemetry, reverses for half the measured time to center the box under the lens, and waits for the conveyor to settle.
 
-- **Vision Pipeline:** Uses the exact `crop_fixed` function from `crop.py` for YOLO ONNX inference and sticker color analysis (`postit_color.py`). The cropped image is saved with each detected defect box annotated.
+- **Capture the box image:** Uses the exact `crop_fixed` function from `crop.py` for YOLO ONNX inference and sticker color analysis (`postit_color.py`). The cropped image is saved with each detected defect box annotated.
 
-- **Defect Decision Logic:** Classifies a box as defective if one or more classes exceed the configured confidence threshold. Repeated predictions of the same defect type are counted once per box.
+- **Defect Decision:** Classifies a box as defective if one or more classes exceed the configured confidence threshold. Repeated predictions of the same defect type are counted once per box.
 
 - **Sorting Action:**
   - **Good boxes** are sent forward through Sensor 2 without stopping, then Sensor 2 is re-armed for the next box.
