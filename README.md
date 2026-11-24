@@ -92,6 +92,40 @@ Before using YOLO to detect defects, raw images from the camera are cropped firs
 
 ## Defect Classes & Detection Results
 
+The box is 4cm X 6cm
+
+**Good Box Example**
+![good_example](media/Boxes/good_example.jpg)
+Good boxes have their lid close, with long tape at top end, and sticker (Post-it) at bottom-left corner. There are no stain or crushed corners. There are 5 colors; green, blue, orange, yellow, and pink.
+
+**Sticker Defect Example**
+![sticker_defect_example](media/Boxes/sticker_defect_example.jpg)
+Defect = sticker missing, misaligned, or at wrong position/orientation
+
+**Tape Defect Example**
+![tape_defect_example](media/Boxes/tape_defect_example.jpg)
+Defect = tape missing, too short, misaligned, or in wrong orientation
+
+**Stain Defect Example**
+![stain_example](media/Boxes/stain_example.jpg)
+Defect = dirty box with stain
+
+**Crushed Corner Defect Example**
+![crushed_corner_example](media/Boxes/crushed_corner_example.jpg)
+Defect = corner crushed or dented
+
+**Lid Open Defect Example**
+![lid_open_example](media/Boxes/lid_open_example.jpg)
+Defect = lid not fully closed
+
+**Multiple Defect Example**
+![multi_example](media/Boxes/multi_example.jpg)
+Multiple types of defects can be found on one box. 
+Same type of defect can occur multiple times in one box, but will be counted as 1 instance.
+
+**YOLO detection result example**
+
+
 ## Part List
 
 | # | Component | Model | Key Specifications | Approx. Price |
