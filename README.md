@@ -125,6 +125,9 @@ Same type of defect can occur multiple times in one box, but will be counted as 
 
 **YOLO detection result example**
 
+![YOLO_example](media/Boxes/YOLO_detection_example.jpg)
+![YOLO_example_2](media/Boxes/val_batch0_pred.jpg)
+![YOLO_example_3](media/Boxes/val_batch1_pred.jpg)
 
 ## Part List
 
