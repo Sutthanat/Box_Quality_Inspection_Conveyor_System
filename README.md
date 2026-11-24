@@ -14,6 +14,7 @@ Sutthanat Sinthupinyo 6630318321
 - [Project Rationale & Scope](#project-rationale--scope)
 - [Hardware & Wiring Diagram](#hardware--wiring-diagram)
 - [What It Does](#what-it-does)
+- [Image Processing](#image-processing)
 - [Defect Classes & Detection Results](#defect-classes--detection-results)
 - [Part List](#part-list)
 - [Software Stack](#software-stack)
@@ -76,6 +77,18 @@ The physical plant consists of a top-mounted industrial vision camera, a Raspber
 - **Live Monitoring:** Streams a live camera view from the existing Pi camera service (avoiding V4L2 device conflicts) to any browser on the local Wi-Fi network.
 
 ---
+## Image Processing
+
+Adjust the camera lens to zoom as close as possible to the box, and adjust the focusing to keep the image sharp.
+
+Before using YOLO to detect defects, raw images from the camera are cropped first, by using `crop.py` to zoom in to our region of interest around the box. By cropping what we only need to process (the box), we reduced the size of the data, thus reducing the computing power.
+
+**Image before crop**
+![Before_cropped](media/Boxes/Before_cropped.jpg)  
+
+**Image after crop**
+
+![After_Cropped](media/Boxes/After_Cropped.jpg)
 
 ## Defect Classes & Detection Results
 
