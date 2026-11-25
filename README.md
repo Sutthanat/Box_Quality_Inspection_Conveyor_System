@@ -4,7 +4,7 @@ Sutthanat Sinthupinyo 6630318321
 
 **PDF Report --> ![Report](docs/Report.pdf)** 
 
-VDO Demo: ![VDO](https://youtu.be/YmKM43ESqwM) 
+VDO Demo: [VDO](https://youtu.be/YmKM43ESqwM) 
 
 ## Brief overview of the project
   This project is a **machine vision quality inspection system** for boxes on a conveyor, developed with a **Raspberry Pi 4 B** and a **Cytron Motion 2350 Pro** microcontroller using a customized **YOLO** model (ONNX) to detect 5 types of defect on boxes, and uses **OpenCV** to recognize sticker colours on the boxes. The conveyor will stop if the box is defective. There's also a **Flask** web interface dashboard to monitor and log detection results, together with controlling and monitoring the conveyor’s status on the same local Wi-Fi network. No Windows PC, C-drive path, password, or external inference service is required at runtime.
