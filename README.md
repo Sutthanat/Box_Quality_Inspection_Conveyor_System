@@ -78,6 +78,15 @@ The physical plant consists of a top-mounted industrial vision camera, a Raspber
 
 - **Live Monitoring:** Streams a live camera view from the existing Pi camera service (avoiding V4L2 device conflicts) to any browser on the local Wi-Fi network.
 
+**Hardware System Overview**
+![HSO](media/hardware_overview.png)
+
+**Box Positioning Sequence**
+![BPS](media/box_positioning_sequence.png)
+
+**Box Inspection Decision Flow**
+![BIDF](media/box_inspection_decision_flow.png)
+
 ---
 ## Image Processing
 
