@@ -127,10 +127,10 @@ Same type of defect can occur multiple times in one box, but will be counted as 
 
 **YOLO detection result example**
 
-![YOLO_example](media/Boxes/YOLO_detection_example.jpg)
 ![YOLO_example_2](media/Boxes/val_batch0_pred.jpg)
 ![YOLO_example_3](media/Boxes/val_batch1_pred.jpg)
 
+**Web Interface Example**
 ![YOLO_1](media/YOLO_camera_example_1.png)
 
 ![YOLO_2](media/YOLO_camera_example_2.png)
@@ -142,8 +142,6 @@ Same type of defect can occur multiple times in one box, but will be counted as 
 ![db_2](media/dashboard_ex_2.png)
 
 ![db_3](media/dashboard_ex_3.png)
-
-![db_4](media/dashboard_ex_4.png)
 
 ## Part List
 
